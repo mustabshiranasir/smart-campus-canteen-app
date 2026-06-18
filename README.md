@@ -1,122 +1,143 @@
-# Smart Canteen App
+# Smart Campus Canteen App
 
-A production-ready, mobile-first full-stack application for university and college canteens.
+A full-stack mobile application that digitizes the university food ordering experience. Students can browse the menu, place orders, and pay using a digital wallet — while canteen admins manage inventory and track orders in real time.
 
-## 🚀 Quick Startup Commands
+> **Status: In Progress** — Currently in active development as a semester project.
 
-To start the entire project, run the following commands:
+## Problem Statement
 
-### 1. Backend Server (Root Directory)
-Open a terminal in the root directory:
+Students waste time queuing at the canteen without knowing what food is available or how long the wait will be. This app solves both problems with a digital ordering and queue management system.
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Frontend | Expo + React Native (cross-platform iOS & Android) |
+| Navigation | Expo Router (file-based routing) |
+| HTTP Client | Axios |
+| State Management | React Context API |
+| Backend | Node.js + Express (REST API) |
+| Database | MongoDB Atlas (cloud NoSQL) |
+| ODM | Mongoose |
+| Authentication | JWT + bcryptjs |
+| Hosting | Render / Railway (free tier) |
+
+## Features
+
+**Student Side**
+- Register and login with JWT authentication
+- Browse menu by category (Fast Food, Healthy, Drinks, Snacks)
+- Add items to cart and update quantities
+- Checkout with wallet or cash payment
+- Real-time order status tracking (Pending → Preparing → Ready)
+- Digital wallet with top-up and transaction history
+- View order history
+
+**Admin Side**
+- Secure admin login
+- Dashboard with today's orders, revenue, active users, and low stock alerts
+- Add, edit, and delete menu items
+- Toggle item availability on/off
+- Manage and update order statuses in real time
+
+## App Screens (14 Total)
+
+**Student (9 screens):** Splash, Login, Register, Home/Menu, Food Detail, Cart, Checkout, My Orders, Profile/Wallet
+
+**Admin (5 screens):** Login, Dashboard, Manage Menu, Add/Edit Food, Manage Orders
+
+## API Endpoints (18 Total)
+
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | /api/auth/register | Register new student |
+| POST | /api/auth/login | Login and get JWT token |
+| GET | /api/menu | Get all menu items |
+| POST | /api/menu | Add menu item (admin) |
+| PUT | /api/menu/:id | Update menu item (admin) |
+| DELETE | /api/menu/:id | Delete menu item (admin) |
+| GET | /api/cart | Get user cart |
+| POST | /api/cart/add | Add item to cart |
+| PUT | /api/cart/update | Update cart quantity |
+| DELETE | /api/cart/clear | Clear cart |
+| POST | /api/orders/checkout | Place order (MongoDB transaction) |
+| GET | /api/orders/my | Get user order history |
+| GET | /api/orders | Get all orders (admin) |
+| PATCH | /api/orders/:id/status | Update order status (admin) |
+| GET | /api/wallet | Get wallet balance |
+| POST | /api/wallet/topup | Add funds to wallet |
+
+## Database — MongoDB Collections (6)
+
+`users` · `menuItems` · `carts` · `orders` · `payments` · `walletTransactions`
+
+## Key Technical Feature — MongoDB ACID Transaction
+
+The checkout flow uses a MongoDB multi-document transaction with session. All of the following steps either succeed together or roll back completely — no partial data:
+
+1. Read cart
+2. Verify stock availability
+3. Create order document
+4. Decrement stock for each item
+5. Create payment record
+6. Deduct wallet balance
+7. Clear cart
+
+## Project Structure
+
+```
+smart-canteen-app/
+├── backend/
+│   ├── src/
+│   │   ├── config/db.js
+│   │   ├── controllers/
+│   │   ├── middleware/auth.js
+│   │   ├── models/
+│   │   └── routes/
+│   ├── server.js
+│   ├── .env.example
+│   └── package.json
+└── mobile/
+    ├── app/
+    │   ├── (auth)/
+    │   ├── (student)/
+    │   └── (admin)/
+    ├── context/AuthContext.js
+    └── services/api.js
+```
+
+## How to Run Locally
+
+**Backend:**
 ```bash
-# Install backend dependencies
+cd backend
 npm install
-
-# Seed the database (creates items with nutritional info and dietary tags)
-node seeder.js
-
-# Start backend server (runs on port 5000)
+cp .env.example .env   # fill in your MongoDB URI and JWT secret
 npm run dev
 ```
 
-### 2. Mobile & Web Frontend (Mobile Directory)
-Open a new terminal and navigate to the `mobile` directory:
+**Mobile:**
 ```bash
-# Go to mobile directory
 cd mobile
-
-# Install dependencies
 npm install
-
-# Start the Expo Dev Server (Press 'w' to launch in browser)
-npm start
+npx expo start
 ```
 
----
+## Development Roadmap
 
-## 🚀 Features
-- **Mobile-First Design**: Beautiful, responsive UI built with React Native/Expo.
-- **Robust Backend**: Node.js + Express with MongoDB and Mongoose.
-- **Secure Authentication**: JWT-based authentication with bcrypt password hashing.
-- **Real-time Order Management**: Add to cart, checkout, and track order status.
-- **Profile Management**: Update user details and secure password management.
-- **Input Validation**: End-to-end validation using Zod.
+- [x] Week 1 — Backend setup, MongoDB connection, test route
+- [x] Week 2 — User model, register/login, JWT auth
+- [ ] Week 3 — Menu APIs + Expo app with login screen
+- [ ] Week 4 — Cart & order APIs with MongoDB transaction
+- [ ] Week 5 — Admin panel + connect all Expo screens to API
+- [ ] Week 6 — Polish, testing, README screenshots, demo video
 
-## 🛠️ Tech Stack
-- **Frontend**: React Native, Expo, React Navigation, Axios
-- **Backend**: Node.js, Express, MongoDB (Mongoose), JWT, Zod
-- **Styling**: Native StyleSheet (Orange theme #FF7A00)
+## Course Details
 
----
+- Course: Mobile Application Development / Advanced Database Systems
+- Institution: COMSATS University Islamabad, Attock Campus
+- Program: BS Computer Science (2023–2027)
 
-## 🏃‍♂️ Step-by-Step Setup Guide
+## Author
 
-### 1. MongoDB Setup
-You need a MongoDB database to store users, products, and orders.
-1. Create a free cluster on [MongoDB Atlas](https://www.mongodb.com/cloud/atlas).
-2. Create a database user and whitelist your IP address (`0.0.0.0/0` for all IPs).
-3. Copy the Connection String URI.
-
-### 2. Backend Setup
-1. Open a terminal in the root directory (`smart-canteen-app`).
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Update the `.env` file in the root directory:
-   ```env
-   PORT=5000
-   MONGO_URI=your_mongodb_connection_string_here
-   JWT_SECRET=your_super_secret_jwt_key
-   ```
-4. **Seed the Database** (Adds 15 test products):
-   ```bash
-   node seeder.js
-   ```
-5. Start the backend server:
-   ```bash
-   npm run dev
-   ```
-
-### 3. Frontend Setup
-1. Open a **new** terminal in the `mobile` directory:
-   ```bash
-   cd mobile
-   ```
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Update the API URL in `mobile/services/api.js`:
-   - If running on Web/iOS Simulator: `http://localhost:5000/api`
-   - If running on an Android Emulator: `http://10.0.2.2:5000/api`
-   - If testing on a physical device: `http://<YOUR_COMPUTER_IP_ADDRESS>:5000/api`
-4. Start the Expo development server:
-   ```bash
-   npx expo start
-   ```
-
----
-
-## 🧪 Testing Features
-- **Register / Login**: Launch the app, click Student, and Register a new account. Use those credentials to log in.
-- **Browse Menu**: Once logged in, the Home tab displays the 15 seeded products. Use the category filters to sort them.
-- **Checkout Flow**: Add products to your cart. Go to the Cart tab, proceed to Checkout, select Pickup Time and Payment Method, and click Place Order.
-- **Order History**: Navigate to the Orders tab to view your past and active orders.
-- **Settings**: Go to the Profile tab -> Settings. Try updating your name, email, or password.
-
----
-
-## ⚠️ Common Errors & Fixes
-
-1. **Error: `querySrv ECONNREFUSED` or MongoDB Connection Failed**
-   - **Fix**: Check your `MONGO_URI` in `.env`. Ensure your current IP is whitelisted in MongoDB Atlas Network Access settings.
-
-2. **Error: `Network Error` on Frontend Login/Register**
-   - **Fix**: The frontend cannot reach the backend. If using an Android Emulator, change `baseURL` in `api.js` to `http://10.0.2.2:5000/api`. If using a physical phone, ensure your phone and computer are on the exact same Wi-Fi network and use your computer's local IP address (e.g., `http://192.168.1.5:5000/api`).
-
-3. **Error: Token expired or invalid**
-   - **Fix**: The frontend handles this automatically by logging you out. Simply log in again. Ensure `JWT_SECRET` is exactly the same every time you start the backend server.
-
-4. **Error: Cart is not updating**
-   - **Fix**: Ensure your backend server is running and the database is connected. Check the Node.js console for any backend crash logs.
+**Mustabshira Nasir** — FA23-BCS-063
