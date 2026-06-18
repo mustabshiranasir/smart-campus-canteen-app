@@ -1,0 +1,907 @@
+/* ==========================================================================
+   DESIGN SYSTEM & VARIABLES
+   ========================================================================== */
+:root {
+  /* Default Theme: Student (Vibrant Canteen Orange) */
+  --accent: #FF7A00;
+  --accent-rgb: 255, 122, 0;
+  --accent-gradient: linear-gradient(135deg, #FF9500 0%, #FF5E00 100%);
+  --accent-soft: rgba(255, 122, 0, 0.1);
+  --accent-glow: rgba(255, 122, 0, 0.35);
+
+  /* System Colors */
+  --bg-dark: #0A0A0C;
+  --bg-card: rgba(18, 18, 22, 0.65);
+  --bg-input: rgba(30, 30, 38, 0.5);
+  
+  --text: #F4F4F5;
+  --text-sub: #A1A1AA;
+  --text-muted: #71717A;
+  
+  --border: rgba(255, 255, 255, 0.07);
+  --border-focus: rgba(255, 122, 0, 0.4);
+  
+  --success: #10B981;
+  --success-bg: rgba(16, 185, 129, 0.1);
+  --error: #EF4444;
+  --error-bg: rgba(239, 68, 68, 0.1);
+  
+  --transition: all 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
+  --font-brand: 'Outfit', sans-serif;
+  --font-body: 'Plus Jakarta Sans', sans-serif;
+}
+
+/* Role Color Mappings override via JS class on body */
+body.role-faculty {
+  --accent: #0284C7;
+  --accent-rgb: 2, 132, 199;
+  --accent-gradient: linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%);
+  --accent-soft: rgba(2, 132, 199, 0.1);
+  --accent-glow: rgba(2, 132, 199, 0.35);
+  --border-focus: rgba(2, 132, 199, 0.4);
+}
+
+body.role-admin {
+  --accent: #D97706;
+  --accent-rgb: 217, 119, 6;
+  --accent-gradient: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+  --accent-soft: rgba(217, 119, 6, 0.1);
+  --accent-glow: rgba(217, 119, 6, 0.35);
+  --border-focus: rgba(217, 119, 6, 0.4);
+}
+
+/* ==========================================================================
+   RESET & FOUNDATION
+   ========================================================================== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  width: 100%;
+  min-height: 100%;
+  background-color: var(--bg-dark);
+  color: var(--text);
+  font-family: var(--font-body);
+  overflow-x: hidden;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+/* ==========================================================================
+   ANIMATED BACKGROUND
+   ========================================================================== */
+.bg-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 50%, #16161D 0%, #060608 100%);
+}
+
+#food-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  opacity: 0.85;
+}
+
+/* Liquid Gradient Blobs */
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  mix-blend-mode: screen;
+  opacity: 0.3;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.blob-1 {
+  top: -10%;
+  right: -10%;
+  width: 50vw;
+  height: 50vw;
+  background: radial-gradient(circle, rgba(var(--accent-rgb), 0.5) 0%, rgba(0, 0, 0, 0) 70%);
+  animation: floatBlob1 25s infinite alternate ease-in-out;
+}
+
+.blob-2 {
+  bottom: -15%;
+  left: -10%;
+  width: 60vw;
+  height: 60vw;
+  background: radial-gradient(circle, rgba(239, 68, 68, 0.4) 0%, rgba(0, 0, 0, 0) 70%);
+  animation: floatBlob2 30s infinite alternate ease-in-out;
+}
+
+.blob-3 {
+  top: 40%;
+  left: 30%;
+  width: 40vw;
+  height: 40vw;
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.35) 0%, rgba(0, 0, 0, 0) 70%);
+  animation: floatBlob3 20s infinite alternate ease-in-out;
+}
+
+@keyframes floatBlob1 {
+  0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+  50% { transform: translate(-80px, 60px) scale(1.1) rotate(180deg); }
+  100% { transform: translate(40px, -40px) scale(0.9) rotate(360deg); }
+}
+
+@keyframes floatBlob2 {
+  0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+  50% { transform: translate(100px, -80px) scale(0.85) rotate(-120deg); }
+  100% { transform: translate(-50px, 50px) scale(1.05) rotate(-240deg); }
+}
+
+@keyframes floatBlob3 {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-40px, -60px) scale(1.2); }
+  100% { transform: translate(60px, 40px) scale(0.9); }
+}
+
+/* Technical Subtle Grid Overlay */
+.grid-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 3;
+  pointer-events: none;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+  background-size: 50px 50px;
+  background-position: center center;
+}
+
+/* ==========================================================================
+   APP CONTAINER & LAYOUT
+   ========================================================================== */
+.app-container {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 480px;
+  padding: 24px 16px;
+  margin: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* ==========================================================================
+   GLASSMORPHIC AUTH CARD
+   ========================================================================== */
+.auth-card {
+  width: 100%;
+  background: var(--bg-card);
+  backdrop-filter: blur(22px) saturate(190%);
+  -webkit-backdrop-filter: blur(22px) saturate(190%);
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  padding: 36px 32px;
+  box-shadow: 
+    0 4px 30px rgba(0, 0, 0, 0.3),
+    0 20px 50px rgba(0, 0, 0, 0.5),
+    inset 0 1px 1px rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+}
+
+.auth-card:hover {
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+/* ==========================================================================
+   BRANDING & LOGO
+   ========================================================================== */
+.brand-section {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.logo-wrapper {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 16px;
+}
+
+.logo-bg-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 54px;
+  height: 54px;
+  border-radius: 18px;
+  background-color: var(--accent);
+  filter: blur(14px);
+  opacity: 0.65;
+  transition: var(--transition);
+}
+
+.logo-icon-container {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  border-radius: 20px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.03) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.15);
+  transition: var(--transition);
+}
+
+.logo-icon {
+  font-size: 30px;
+  color: var(--accent);
+  transition: var(--transition);
+  filter: drop-shadow(0 2px 5px rgba(var(--accent-rgb), 0.3));
+}
+
+.brand-title {
+  font-family: var(--font-brand);
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  margin-bottom: 4px;
+  background: linear-gradient(to right, #FFFFFF 0%, #D4D4D8 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.brand-subtitle {
+  font-size: 13px;
+  color: var(--text-sub);
+  font-weight: 500;
+}
+
+/* ==========================================================================
+   ROLE SELECTOR
+   ========================================================================== */
+.role-selector {
+  display: flex;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--border);
+  padding: 4px;
+  border-radius: 14px;
+  margin-bottom: 24px;
+  position: relative;
+  gap: 2px;
+}
+
+.role-tab {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 10px 4px;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  transition: var(--transition);
+}
+
+.role-tab ion-icon {
+  font-size: 16px;
+  transition: var(--transition);
+}
+
+.role-tab:hover {
+  color: var(--text-sub);
+}
+
+.role-tab.active {
+  color: var(--accent);
+  background: var(--accent-soft);
+  box-shadow: inset 0 1px 0px rgba(255,255,255,0.05);
+}
+
+.role-tab.active ion-icon {
+  transform: translateY(-1px);
+  filter: drop-shadow(0 0 4px var(--accent-glow));
+}
+
+/* ==========================================================================
+   MODE TOGGLE (SIGN IN / REGISTER)
+   ========================================================================== */
+.mode-toggle {
+  display: flex;
+  position: relative;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--border);
+  padding: 4px;
+  border-radius: 12px;
+  margin-bottom: 28px;
+}
+
+.toggle-slider {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: calc(50% - 4px);
+  height: calc(100% - 8px);
+  background: var(--accent-gradient);
+  border-radius: 8px;
+  transition: transform 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
+  box-shadow: 0 4px 12px var(--accent-glow);
+  z-index: 1;
+}
+
+body.role-faculty .toggle-slider {
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35);
+}
+body.role-admin .toggle-slider {
+  box-shadow: 0 4px 12px rgba(217, 119, 6, 0.35);
+}
+
+.toggle-btn {
+  flex: 1;
+  position: relative;
+  z-index: 2;
+  background: transparent;
+  border: none;
+  color: var(--text-sub);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 11px 0;
+  cursor: pointer;
+  text-align: center;
+  transition: color 0.3s ease;
+}
+
+.toggle-btn.active {
+  color: #FFFFFF;
+}
+
+/* ==========================================================================
+   FORMS WRAPPER & SLIDE ANIMATIONS
+   ========================================================================== */
+.forms-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.auth-form {
+  display: none;
+  opacity: 0;
+  transform: translateY(12px) scale(0.99);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+.auth-form.active-form {
+  display: flex;
+  flex-direction: column;
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.input-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+/* ==========================================================================
+   INPUTS & LABELS
+   ========================================================================== */
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 18px;
+  width: 100%;
+}
+
+.input-grid .input-group {
+  margin-bottom: 0;
+}
+
+.input-group label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-sub);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  transition: var(--transition);
+}
+
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.input-wrapper input {
+  width: 100%;
+  height: 50px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0 16px 0 46px;
+  color: #FFFFFF;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  outline: none;
+  transition: var(--transition);
+}
+
+.input-wrapper input::placeholder {
+  color: var(--text-muted);
+}
+
+.input-icon {
+  position: absolute;
+  left: 16px;
+  font-size: 18px;
+  color: var(--text-muted);
+  pointer-events: none;
+  transition: var(--transition);
+}
+
+.eye-toggle-btn {
+  position: absolute;
+  right: 14px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  transition: var(--transition);
+}
+
+.eye-toggle-btn:hover {
+  color: var(--text-sub);
+}
+
+/* Focus States */
+.input-wrapper input:focus {
+  border-color: var(--accent);
+  background: rgba(30, 30, 38, 0.7);
+  box-shadow: 
+    0 0 0 3px var(--accent-soft),
+    0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.input-wrapper input:focus + .input-icon,
+.input-wrapper input:focus ~ .input-icon {
+  color: var(--accent);
+  transform: scale(1.05);
+}
+
+.input-group:focus-within label {
+  color: var(--accent);
+}
+
+/* ==========================================================================
+   FORM ADDITIONAL ACTIONS
+   ========================================================================== */
+.form-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 6px 0 24px;
+}
+
+.remember-me {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-sub);
+  cursor: pointer;
+  user-select: none;
+}
+
+.remember-me input {
+  display: none;
+}
+
+.custom-checkbox {
+  width: 18px;
+  height: 18px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-input);
+  display: inline-block;
+  position: relative;
+  transition: var(--transition);
+}
+
+.remember-me input:checked + .custom-checkbox {
+  background: var(--accent-gradient);
+  border-color: var(--accent);
+  box-shadow: 0 2px 6px var(--accent-glow);
+}
+
+.remember-me input:checked + .custom-checkbox::after {
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: 2px;
+  width: 4px;
+  height: 8px;
+  border: solid #FFFFFF;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.forgot-link, .footNote .link {
+  font-size: 13px;
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 600;
+  transition: var(--transition);
+}
+
+.forgot-link:hover, .footNote .link:hover {
+  filter: brightness(1.2);
+  text-decoration: underline;
+}
+
+/* ==========================================================================
+   BUTTONS & LOADER
+   ========================================================================== */
+.submit-btn {
+  width: 100%;
+  height: 52px;
+  background: var(--accent-gradient);
+  border: none;
+  border-radius: 12px;
+  color: #FFFFFF;
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 14px var(--accent-glow);
+  position: relative;
+  overflow: hidden;
+  transition: var(--transition);
+}
+
+.submit-btn ion-icon {
+  font-size: 16px;
+  transition: transform 0.3s ease;
+}
+
+.submit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px var(--accent-glow);
+}
+
+.submit-btn:hover ion-icon {
+  transform: translateX(4px);
+}
+
+.submit-btn:active {
+  transform: translateY(0);
+}
+
+/* Loader Styles */
+.btn-loader {
+  display: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #FFFFFF;
+  animation: spin 0.8s linear infinite;
+  position: absolute;
+}
+
+.submit-btn.loading .btn-text,
+.submit-btn.loading ion-icon {
+  opacity: 0;
+}
+
+.submit-btn.loading .btn-loader {
+  display: block;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ==========================================================================
+   OTP SECTION & HELPER VISIBILITIES
+   ========================================================================== */
+.otp-verification-section {
+  animation: fadeIn 0.4s ease forwards;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 18px 0;
+}
+
+.divider::before, .divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid var(--border);
+}
+
+.divider span {
+  padding: 0 10px;
+}
+
+.otp-desc {
+  font-size: 12px;
+  color: var(--text-sub);
+  text-align: center;
+  margin-bottom: 14px;
+  line-height: 1.5;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* ==========================================================================
+   TOAST NOTIFICATION SYSTEM
+   ========================================================================== */
+#toast-container {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 380px;
+  width: calc(100vw - 48px);
+  pointer-events: none;
+}
+
+.toast {
+  padding: 14px 18px;
+  border-radius: 12px;
+  background: rgba(18, 18, 22, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  color: #FFFFFF;
+  font-size: 13px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+  pointer-events: auto;
+  animation: toastSlideIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.1) forwards;
+  opacity: 0;
+}
+
+.toast ion-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.toast-success {
+  border-left: 3px solid var(--success);
+}
+.toast-success ion-icon {
+  color: var(--success);
+}
+
+.toast-error {
+  border-left: 3px solid var(--error);
+}
+.toast-error ion-icon {
+  color: var(--error);
+}
+
+.toast-info {
+  border-left: 3px solid var(--accent);
+}
+.toast-info ion-icon {
+  color: var(--accent);
+}
+
+.toast.toast-leave {
+  animation: toastSlideOut 0.3s ease forwards;
+}
+
+@keyframes toastSlideIn {
+  from { transform: translateX(100%) translateY(-10px); opacity: 0; }
+  to { transform: translateX(0) translateY(0); opacity: 1; }
+}
+
+@keyframes toastSlideOut {
+  from { transform: translateX(0) scale(1); opacity: 1; }
+  to { transform: translateX(50%) scale(0.9); opacity: 0; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ==========================================================================
+   RESPONSIVE OPTIMIZATIONS
+   ========================================================================== */
+@media (max-width: 480px) {
+  .auth-card {
+    padding: 28px 20px;
+    border-radius: 24px;
+  }
+  
+  .brand-title {
+    font-size: 24px;
+  }
+}
+
+/* ==========================================================================
+   CARD BACKGROUND PATTERN & SPARKLES (DELIGHTFUL FOOD WORKMARK)
+   ========================================================================== */
+.card-bg-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.food-pattern-svg {
+  position: absolute;
+  top: 5%;
+  left: 5%;
+  width: 90%;
+  height: 90%;
+  color: var(--accent);
+  opacity: 0.08;
+  transition: color var(--transition);
+}
+
+/* Animate separate components inside SVG */
+.svg-cup, .svg-burger, .svg-cloche {
+  transform-origin: center;
+  animation: svgWobble 8s infinite ease-in-out;
+}
+
+.svg-burger {
+  animation-delay: 2s;
+}
+
+.svg-cloche {
+  animation-delay: 4s;
+}
+
+@keyframes svgWobble {
+  0%, 100% { transform: scale(0.45) rotate(0deg); }
+  50% { transform: scale(0.47) rotate(3deg); }
+}
+
+.svg-pizza {
+  transform-origin: 130px 130px;
+  animation: pizzaWobble 9s infinite ease-in-out;
+}
+
+@keyframes pizzaWobble {
+  0%, 100% { transform: translate(0px, 0px) scale(0.48) rotate(-15deg); }
+  50% { transform: translate(2px, -3px) scale(0.50) rotate(-10deg); }
+}
+
+/* Steam rising animation */
+.steam {
+  stroke-dasharray: 8;
+  stroke-dashoffset: 0;
+  animation: steamRise 3s infinite linear;
+}
+
+.steam-1 { animation-delay: 0s; }
+.steam-2 { animation-delay: 1s; }
+.steam-3 { animation-delay: 2s; }
+
+@keyframes steamRise {
+  0% {
+    stroke-dashoffset: 16;
+    opacity: 0;
+  }
+  30% {
+    opacity: 0.8;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+}
+
+/* CSS Sparkling Star overlays for card */
+.card-sparkles-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.card-sparkle {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: #FFFFFF;
+  clip-path: polygon(50% 0%, 65% 35%, 100% 50%, 65% 65%, 50% 100%, 35% 65%, 0% 50%, 35% 35%);
+  opacity: 0;
+  pointer-events: none;
+  filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.8)) drop-shadow(0 0 6px var(--accent));
+  animation: sparkleTwinkle 1.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+@keyframes sparkleTwinkle {
+  0% {
+    transform: scale(0) rotate(0deg);
+    opacity: 0;
+  }
+  30% {
+    transform: scale(1.1) rotate(60deg);
+    opacity: 0.9;
+  }
+  70% {
+    transform: scale(0.8) rotate(120deg);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(0) rotate(180deg);
+    opacity: 0;
+  }
+}
+
+/* Make sure inner card elements are positioned on top of the background layer */
+.brand-section, .role-selector, .mode-toggle, .forms-wrapper {
+  position: relative;
+  z-index: 2;
+}

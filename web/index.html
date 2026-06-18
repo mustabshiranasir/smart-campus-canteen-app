@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Foodie Moodie | Sign In & Register</title>
+  
+  <!-- Modern Premium Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Ionicons for Modern Clean Icons -->
+  <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+  
+  <!-- Custom Styling -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Dynamic Animated Background Container -->
+  <div class="bg-container">
+    <!-- Liquid Gradient Blobs -->
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+    
+    <!-- Canvas for Floating Interactive Food Icons -->
+    <canvas id="food-canvas"></canvas>
+    
+    <!-- Grid overlay for tech/modern vibe -->
+    <div class="grid-overlay"></div>
+  </div>
+
+  <!-- Main Container -->
+  <main class="app-container">
+    
+    <!-- Toast Notification System -->
+    <div id="toast-container"></div>
+
+    <!-- Glassmorphic Auth Card -->
+    <div class="auth-card">
+      <!-- Card Background Layer for Food line-art and Sparkles -->
+      <div class="card-bg-layer">
+        <svg class="food-pattern-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+          <!-- Steaming Coffee Cup -->
+          <g class="svg-cup" transform="translate(20, 20) scale(0.45)">
+            <path d="M10,30 L15,70 A10,10 0 0,0 25,80 L55,80 A10,10 0 0,0 65,70 L70,30 Z" fill="none" stroke="currentColor" stroke-width="2.5" />
+            <path d="M70,40 C80,40 85,45 80,55 C76,62 70,60 70,60" fill="none" stroke="currentColor" stroke-width="2.5" />
+            <path d="M5,30 L75,30" fill="none" stroke="currentColor" stroke-width="3" />
+            <path class="steam steam-1" d="M25,20 C23,10 30,10 28,0" fill="none" stroke="currentColor" stroke-width="2" />
+            <path class="steam steam-2" d="M40,20 C38,10 45,10 43,0" fill="none" stroke="currentColor" stroke-width="2" />
+            <path class="steam steam-3" d="M55,20 C53,10 60,10 58,0" fill="none" stroke="currentColor" stroke-width="2" />
+          </g>
+
+          <!-- Burger -->
+          <g class="svg-burger" transform="translate(135, 20) scale(0.45)">
+            <path d="M10,40 C10,10 90,10 90,40 Z" fill="none" stroke="currentColor" stroke-width="2.5" />
+            <rect x="5" y="45" width="90" height="8" rx="4" fill="none" stroke="currentColor" stroke-width="2.5" />
+            <path d="M10,40 Q20,45 30,40 Q40,45 50,40 Q60,45 70,40 Q80,45 90,40" fill="none" stroke="currentColor" stroke-width="2.5" />
+            <path d="M12,58 L88,58 C88,75 12,75 12,58 Z" fill="none" stroke="currentColor" stroke-width="2.5" />
+          </g>
+
+          <!-- Pizza Slice -->
+          <g class="svg-pizza" transform="translate(130, 130) scale(0.48) rotate(-15)">
+            <path d="M10,10 L70,30 L30,70 Z" fill="none" stroke="currentColor" stroke-width="2.5" />
+            <path d="M68,28 C62,38 38,62 28,68" fill="none" stroke="currentColor" stroke-width="3" />
+            <circle cx="35" cy="30" r="4.5" fill="currentColor" />
+            <circle cx="50" cy="42" r="3.5" fill="currentColor" />
+            <circle cx="30" cy="50" r="4" fill="currentColor" />
+          </g>
+
+          <!-- Chef Cloche -->
+          <g class="svg-cloche" transform="translate(20, 130) scale(0.48)">
+            <path d="M10,60 L90,60 C90,60 90,20 50,20 C10,20 10,60 10,60 Z" fill="none" stroke="currentColor" stroke-width="2.5" />
+            <path d="M5,65 L95,65" fill="none" stroke="currentColor" stroke-width="3" />
+            <circle cx="50" cy="15" r="5.5" fill="none" stroke="currentColor" stroke-width="2.5" />
+            <path d="M30,40 C35,35 45,35 50,40 C55,35 65,35 70,40" fill="none" stroke="currentColor" stroke-width="2" />
+          </g>
+        </svg>
+        <div class="card-sparkles-container" id="card-sparkles"></div>
+      </div>
+
+      <!-- Top Branding -->
+      <div class="brand-section">
+        <div class="logo-wrapper">
+          <div class="logo-bg-glow"></div>
+          <div class="logo-icon-container" style="background: transparent; border: none; box-shadow: none;">
+            <img src="logo.png" alt="Foodie Moodie Logo" style="width: 100%; height: 100%; object-fit: contain;" />
+          </div>
+        </div>
+        <h1 class="brand-title">Foodie Moodie</h1>
+        <p class="brand-subtitle">Smart Canteen Management System</p>
+      </div>
+
+      <!-- Role Selector Tabs -->
+      <div class="role-selector">
+        <button class="role-tab active" data-role="student">
+          <ion-icon name="school-outline"></ion-icon>
+          <span>Student</span>
+        </button>
+        <button class="role-tab" data-role="faculty">
+          <ion-icon name="briefcase-outline"></ion-icon>
+          <span>Faculty</span>
+        </button>
+        <button class="role-tab" data-role="admin">
+          <ion-icon name="shield-checkmark-outline"></ion-icon>
+          <span>Admin</span>
+        </button>
+      </div>
+
+      <!-- Form Mode Toggle (Sign In / Register) -->
+      <div class="mode-toggle">
+        <div class="toggle-slider"></div>
+        <button class="toggle-btn active" id="btn-login-mode">Sign In</button>
+        <button class="toggle-btn" id="btn-register-mode">Register</button>
+      </div>
+
+      <!-- Authentication Forms Wrapper -->
+      <div class="forms-wrapper">
+        
+        <!-- SIGN IN FORM -->
+        <form id="login-form" class="auth-form active-form">
+          <div class="input-group">
+            <label for="login-identifier" id="lbl-login-identifier">Email or Roll Number</label>
+            <div class="input-wrapper">
+              <ion-icon name="person-outline" class="input-icon"></ion-icon>
+              <input 
+                type="text" 
+                id="login-identifier" 
+                placeholder="Enter your email or roll number" 
+                required 
+                autocomplete="username"
+              >
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label for="login-password">Password</label>
+            <div class="input-wrapper">
+              <ion-icon name="lock-closed-outline" class="input-icon"></ion-icon>
+              <input 
+                type="password" 
+                id="login-password" 
+                placeholder="Enter your password" 
+                required 
+                autocomplete="current-password"
+              >
+              <button type="button" class="eye-toggle-btn" aria-label="Toggle password visibility">
+                <ion-icon name="eye-outline"></ion-icon>
+              </button>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <label class="remember-me">
+              <input type="checkbox" id="remember-me">
+              <span class="custom-checkbox"></span>
+              <span>Remember me</span>
+            </label>
+            <a href="#" class="forgot-link">Forgot Password?</a>
+          </div>
+
+          <button type="submit" class="submit-btn">
+            <span class="btn-text">Sign In</span>
+            <ion-icon name="arrow-forward-outline"></ion-icon>
+            <div class="btn-loader"></div>
+          </button>
+        </form>
+
+        <!-- REGISTER FORM -->
+        <form id="register-form" class="auth-form">
+          <div class="input-grid">
+            <div class="input-group">
+              <label for="register-name">Full Name</label>
+              <div class="input-wrapper">
+                <ion-icon name="person-outline" class="input-icon"></ion-icon>
+                <input 
+                  type="text" 
+                  id="register-name" 
+                  placeholder="Enter full name" 
+                  autocomplete="name"
+                >
+              </div>
+            </div>
+
+            <div class="input-group">
+              <label for="register-email">Email Address</label>
+              <div class="input-wrapper">
+                <ion-icon name="mail-outline" class="input-icon"></ion-icon>
+                <input 
+                  type="email" 
+                  id="register-email" 
+                  placeholder="Enter email address" 
+                  autocomplete="email"
+                >
+              </div>
+            </div>
+
+            <!-- Roll Number - Dynamic label/visibility based on role -->
+            <div class="input-group" id="group-roll-number">
+              <label for="register-roll" id="lbl-register-roll">Roll Number</label>
+              <div class="input-wrapper">
+                <ion-icon name="id-card-outline" class="input-icon"></ion-icon>
+                <input 
+                  type="text" 
+                  id="register-roll" 
+                  placeholder="BS-CS-21-001"
+                >
+              </div>
+            </div>
+
+            <div class="input-group">
+              <label for="register-phone">Phone Number</label>
+              <div style="display: flex; gap: 8px;">
+                <select id="country-code" style="padding: 0 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: inherit; font-size: 14px; width: 110px; outline: none; -webkit-appearance: none; appearance: none; cursor: pointer;">
+                  <option value="+92" style="color: #000;">🇵🇰 PK (+92)</option>
+                </select>
+                <div class="input-wrapper" style="flex: 1; margin: 0;">
+                  <ion-icon name="call-outline" class="input-icon"></ion-icon>
+                  <input 
+                    type="tel" 
+                    id="register-phone" 
+                    placeholder="3001234567"
+                    maxlength="10"
+                  >
+                </div>
+              </div>
+            </div>
+
+            <!-- Admin Code - Only shown when Admin role is active -->
+            <div class="input-group hidden" id="group-admin-code">
+              <label for="register-admin-code">Admin Secret Code</label>
+              <div class="input-wrapper">
+                <ion-icon name="key-outline" class="input-icon"></ion-icon>
+                <input 
+                  type="password" 
+                  id="register-admin-code" 
+                  placeholder="Enter secret admin key"
+                >
+              </div>
+            </div>
+
+            <div class="input-group">
+              <label for="register-password">Password</label>
+              <div class="input-wrapper">
+                <ion-icon name="lock-closed-outline" class="input-icon"></ion-icon>
+                <input 
+                  type="password" 
+                  id="register-password" 
+                  placeholder="Create strong password" 
+                  autocomplete="new-password"
+                >
+                <button type="button" class="eye-toggle-btn" aria-label="Toggle password visibility">
+                  <ion-icon name="eye-outline"></ion-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Registration OTP Verification flow -->
+          <div class="otp-verification-section hidden" id="otp-section">
+            <div class="divider">
+              <span>Verification</span>
+            </div>
+            <p class="otp-desc">An OTP code has been sent to your phone. Enter it below to complete registration.</p>
+            <div class="input-group">
+              <label for="register-otp">OTP Code (6 digits)</label>
+              <div class="input-wrapper">
+                <ion-icon name="lock-open-outline" class="input-icon"></ion-icon>
+                <input 
+                  type="text" 
+                  id="register-otp" 
+                  placeholder="123456" 
+                  maxlength="6"
+                >
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" class="submit-btn" id="btn-register-submit">
+            <span class="btn-text">Send Verification OTP</span>
+            <ion-icon name="arrow-forward-outline"></ion-icon>
+            <div class="btn-loader"></div>
+          </button>
+        </form>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- Canvas, interaction, and validation logic -->
+  <script src="app.js"></script>
+</body>
+</html>

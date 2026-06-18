@@ -1,0 +1,63 @@
+smart-canteen-app/                ← ROOT WORKSPACE (Your Backend + Admin/Student Shared Server)
+│
+├── config/                      ← System Setup Credentials
+│   ├── db.js                    ← MongoDB cloud & local fallback connection strategy
+│   └── firebase.js              ← Firebase Admin SDK initialization credentials
+│
+├── controllers/                 ← Request Execution Business Logic
+│   ├── authController.js        ← Register, login, phone OTP codes, and Firebase-to-Mongo sync
+│   ├── foodController.js        ← Menu item updates, deletions, and photo file handlers
+│   ├── orderController.js       ← Place orders, deplete stock, check wallets, and update status
+│   └── userController.js        ← User account details and avatar uploads
+│
+├── middleware/                  ← Global HTTP Hooks & Access Filters
+│   ├── auth.js                  ← Security routes exporter
+│   ├── authMiddleware.js        ← JWT authentication parser and token verifier
+│   ├── isAdmin.js               ← Strict administrative route access guard
+│   └── upload.js                ← Multer disk storage rules for food and profile images
+│
+├── models/                      ← MongoDB Database Schemas
+│   ├── Food.js                  ← Food pricing, availability, and remaining stock
+│   ├── OTP.js                   ← Temporary, auto-expiring SMS validation codes
+│   ├── Order.js                 ← Pickup times slots, user items, and cash totals
+│   ├── Product.js               ← Parallel student menu inventory records
+│   ├── Settings.js              ← Customer setting profiles and photo visibilities
+│   └── User.js                  ← Cashless wallets, email/roll numbers, passwords, and verification flags
+│
+├── routes/                      ← Express Server Endpoint HTTP Routes
+│   ├── authRoutes.js            ← Login, register, and verification SMS triggers
+│   ├── foodRoutes.js            ← Menu fetches, food additions, and picture uploads
+│   ├── orderRoutes.js           ← Order placements, active streams, and status updates
+│   └── userRoutes.js            ← Profile image updates and settings toggles
+│
+├── uploads/                     ← Locally Uploaded Media Assets (Served on backend base URL)
+│   ├── food-items/              ← Food pictures uploaded via Camera/Gallery
+│   └── profiles/                ← Student/Admin custom avatars
+│
+├── validators/                  ← Zod Input Sanitization Schemas
+│   └── index.js                 ← Form validation rules for logins and registrations
+│
+├── mobile/                      ← EXPO CLIENT MOBILE APP (Shared Codebase)
+│   ├── app/                     ← Dynamic Expo-Router Navigation Pages
+│   │   ├── (auth)/              ← Authentication screens (Login & OTP Registration)
+│   │   │   ├── login.jsx        ← Mobile sign-in with Roll Number or Email
+│   │   │   └── register.jsx     ← Modern signup with simulated SMS Verification
+│   │   ├── (student)/           ← Student Portal Tabs
+│   │   │   ├── index.jsx        ← Student menu card listings
+│   │   │   ├── cart.jsx         ← Cashless student checkout wallet cart
+│   │   │   ├── orders.jsx       ← Live pickup slots tracking
+│   │   │   └── profile.jsx      ← Profile avatar editor & wallet recharge panel
+│   │   └── (admin)/             ← Admin Portal Tabs
+│   │       ├── dashboard.jsx    ← Analytics graphs & customer visual breakdown
+│   │       ├── menu.jsx         ← Modern inventory editor with native Photo Pickers
+│   │       └── orders.jsx       ← Live canteen pickup queue stream
+│   ├── components/              ← Reusable UI elements (FoodList)
+│   ├── context/                 ← Shared Global States (AuthContext, ThemeContext)
+│   ├── services/                ← API Service integrations
+│   │   └── api.js               ← Central Axios API caller with dynamic SERVER_BASE_URL resolution
+│   └── package.json             ← React Native dependencies list
+│
+├── .env                         ← Database & Firebase private environment variables
+├── package.json                 ← Node Express backend dependencies list
+├── server.js                    ← Canteen Express backend boot startup entry point
+└── VIVA_MASTER_GUIDE.md         ← Viva examination master study guide
