@@ -12,7 +12,7 @@ import { SERVER_BASE_URL } from '../../services/api';
 export default function HomeScreen() {
   const router = useRouter();
   const { totalItems } = useCart();
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const { theme } = useTheme();
 
   return (
@@ -78,6 +78,17 @@ export default function HomeScreen() {
 
       {/* Main Food List */}
       <FoodList />
+
+      {/* Floating AI Assistant Button */}
+      {!isAdmin && (
+        <TouchableOpacity
+          style={[styles.assistantFab, { backgroundColor: theme.accent }]}
+          onPress={() => router.push('/(student)/assistant')}
+          activeOpacity={0.85}
+        >
+          <Ionicons name="chatbubble-ellipses" size={28} color="#fff" />
+        </TouchableOpacity>
+      )}
 
       {/* Bottom Nav */}
       <View style={[styles.bottomNav, { backgroundColor: theme.card, borderColor: theme.border }]}>
@@ -245,5 +256,21 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 9,
     fontWeight: '800',
+  },
+  assistantFab: {
+    position: 'absolute',
+    bottom: 90,
+    right: 20,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    shadowOffset: { width: 0, height: 4 },
+    zIndex: 1000,
   },
 });

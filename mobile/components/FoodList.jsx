@@ -38,6 +38,10 @@ export default function FoodList() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
+  // AI Recommendations
+  const [recommendations, setRecommendations] = useState([]);
+  const [recLoading, setRecLoading] = useState(true);
+
   // Fetch foods from /api/food
   const fetchFoods = async () => {
     try {
@@ -69,13 +73,52 @@ export default function FoodList() {
     }
   };
 
+  const fetchRecommendations = async () => {
+    try {
+      setRecLoading(true);
+      const res = await api.get('/ai/recommendations');
+      if (res.data.success) {
+        const { recommendedForYou = [], popularOverall = [] } = res.data.data;
+        // Combine they ensuring no duplicates
+        const combined = [...recommendedForYou];
+        popularOverall.forEach(item => {
+          if (!combined.some(f => f._id === item._id)) {
+            combined.push(item);
+          }
+        });
+        const formatted = combined.map(item => ({
+          id: item._id,
+          name: item.name,
+          price: item.price,
+          category: item.category,
+          image: getImageUrl(item.imageUrl),
+          status: item.status,
+          stock: item.stock !== undefined ? item.stock : 99,
+          rating: item.rating !== undefined ? item.rating : 4.5,
+          numReviews: item.numReviews !== undefined ? item.numReviews : 1,
+          dietary: item.dietary || [],
+          nutrition: item.nutrition || { calories: 0, protein: 0, carbs: 0, fat: 0 },
+          description: item.description || (item.category + ' item'),
+          extras: item.extras || [],
+        }));
+        setRecommendations(formatted);
+      }
+    } catch (error) {
+      console.error('Error fetching recommendations:', error);
+    } finally {
+      setRecLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchFoods();
+    fetchRecommendations();
   }, []);
 
   const onRefresh = () => {
     setRefreshing(true);
     fetchFoods();
+    fetchRecommendations();
   };
 
   const handleOpenDetail = (item) => {
@@ -222,6 +265,55 @@ export default function FoodList() {
     </View>
   );
 
+  const RecommendationSkeleton = () => (
+    <View style={{ flexDirection: 'row', gap: 12, paddingHorizontal: 16, marginBottom: 16 }}>
+      {[1, 2].map(i => (
+        <View key={i} style={[styles.skeletonCard, { backgroundColor: theme.inputBg, borderColor: theme.border }]}>
+          <View style={[styles.skeletonImg, { backgroundColor: theme.border }]} />
+          <View style={[styles.skeletonText, { backgroundColor: theme.border }]} />
+          <View style={styles.skeletonFooter}>
+            <View style={[styles.skeletonTextSmall, { backgroundColor: theme.border }]} />
+            <View style={[styles.skeletonBtn, { backgroundColor: theme.border }]} />
+          </View>
+        </View>
+      ))}
+    </View>
+  );
+
+  const renderRecommendationCard = ({ item }) => (
+    <View style={[styles.recCard, { backgroundColor: theme.card, borderColor: theme.border }]}>
+      <TouchableOpacity activeOpacity={0.9} onPress={() => handleOpenDetail(item)}>
+        <Image source={{ uri: item.image }} style={styles.recFoodImg} resizeMode="cover" />
+
+        {/* Rating badge */}
+        <View style={[styles.ratingBadge, { backgroundColor: theme.card }]}>
+          <Ionicons name="star" size={11} color="#F59E0B" />
+          <Text style={[styles.ratingText, { color: theme.text }]}>{item.rating?.toFixed(1) || '4.5'}</Text>
+        </View>
+
+        <View style={styles.recCardBody}>
+          <Text style={[styles.recFoodName, { color: theme.text }]} numberOfLines={1}>{item.name}</Text>
+          <Text style={[styles.recFoodDesc, { color: theme.textSub }]} numberOfLines={1}>{item.description}</Text>
+          
+          <View style={styles.recCardFooter}>
+            <Text style={[styles.recPriceValue, { color: theme.text }]}>Rs. {item.price}</Text>
+            <TouchableOpacity
+              style={[
+                styles.recAddBtn, 
+                { backgroundColor: item.stock === 0 ? '#9CA3AF' : theme.accent }
+              ]}
+              onPress={() => addToCart({ ...item, _id: item.id })}
+              activeOpacity={0.85}
+              disabled={item.stock === 0}
+            >
+              <Text style={styles.recAddBtnText}>{item.stock === 0 ? 'Sold' : 'Add'}</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </TouchableOpacity>
+    </View>
+  );
+
   if (loading) {
     return (
       <View style={[styles.loadingCenter, { backgroundColor: theme.bg }]}>
@@ -255,6 +347,28 @@ export default function FoodList() {
                 </TouchableOpacity>
               )}
             </View>
+
+            {/* Recommendations Section */}
+            {recLoading ? (
+              <View style={{ marginBottom: 6 }}>
+                <Text style={[styles.sectionHeader, { color: theme.text }]}>Recommended for you</Text>
+                <RecommendationSkeleton />
+              </View>
+            ) : (
+              recommendations.length > 0 && (
+                <View style={{ marginBottom: 12 }}>
+                  <Text style={[styles.sectionHeader, { color: theme.text }]}>Recommended for you</Text>
+                  <FlatList
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    data={recommendations}
+                    keyExtractor={item => 'rec-' + item.id}
+                    renderItem={renderRecommendationCard}
+                    contentContainerStyle={{ paddingHorizontal: 16, gap: 12 }}
+                  />
+                </View>
+              )
+            )}
 
             {/* Category Horizontal list */}
             <ScrollView
@@ -944,5 +1058,88 @@ const styles = StyleSheet.create({
   dietaryBadgeText: {
     fontSize: 8,
     fontWeight: '800',
+  },
+  sectionHeader: {
+    fontSize: 16,
+    fontWeight: '800',
+    marginHorizontal: 16,
+    marginTop: 14,
+    marginBottom: 8,
+  },
+  recCard: {
+    width: 200,
+    borderRadius: 16,
+    borderWidth: 1,
+    overflow: 'hidden',
+  },
+  recFoodImg: {
+    width: '100%',
+    height: 95,
+  },
+  recCardBody: {
+    padding: 10,
+  },
+  recFoodName: {
+    fontSize: 13,
+    fontWeight: '800',
+    marginBottom: 2,
+  },
+  recFoodDesc: {
+    fontSize: 10,
+    lineHeight: 14,
+    marginBottom: 8,
+  },
+  recCardFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 2,
+  },
+  recPriceValue: {
+    fontSize: 13,
+    fontWeight: '800',
+  },
+  recAddBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+  },
+  recAddBtnText: {
+    color: '#fff',
+    fontSize: 10,
+    fontWeight: '700',
+  },
+  skeletonCard: {
+    width: 200,
+    height: 170,
+    borderRadius: 16,
+    borderWidth: 1,
+    padding: 10,
+    gap: 8,
+  },
+  skeletonImg: {
+    height: 90,
+    borderRadius: 12,
+  },
+  skeletonText: {
+    height: 12,
+    width: '75%',
+    borderRadius: 4,
+  },
+  skeletonTextSmall: {
+    height: 10,
+    width: '35%',
+    borderRadius: 4,
+  },
+  skeletonFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 4,
+  },
+  skeletonBtn: {
+    height: 26,
+    width: 50,
+    borderRadius: 8,
   },
 });

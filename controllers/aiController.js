@@ -2,7 +2,7 @@ import Food from '../models/Food.js';
 import Order from '../models/Order.js';
 import { getFoods } from './foodController.js';
 import { addToCart } from './cartController.js';
-import { getOrders } from './orderController.js';
+import { getOrders, createOrder } from './orderController.js';
 import { getDefaultExtrasForFood } from '../utils/foodExtrasPresets.js';
 
 const withExtras = (foodDoc) => {
@@ -174,6 +174,7 @@ const handleSearchFoods = async (args, req) => {
     name: f.name,
     price: f.price,
     category: f.category,
+    imageUrl: f.imageUrl,
     status: f.status,
     stock: f.stock,
     description: f.description,
@@ -194,6 +195,16 @@ const handleAddToCart = async (args, req) => {
 
 const handleGetPastOrders = async (args, req) => {
   const result = await callController(getOrders, req, {});
+  return result.data;
+};
+
+const handlePlaceOrder = async (args, req) => {
+  const { paymentMethod = 'wallet', pickupTime } = args;
+  const body = { 
+    paymentMethod, 
+    pickupLocation: pickupTime ? `Canteen (Time: ${pickupTime})` : 'Canteen' 
+  };
+  const result = await callController(createOrder, req, { body });
   return result.data;
 };
 
@@ -271,6 +282,26 @@ const getPastOrdersTool = {
   }
 };
 
+const placeOrderTool = {
+  name: 'placeOrder',
+  description: 'Place an order for the items in the user\'s cart. Call this ONLY after confirming pickup timing and wallet payment.',
+  parameters: {
+    type: 'OBJECT',
+    properties: {
+      paymentMethod: {
+        type: 'STRING',
+        enum: ['wallet'],
+        description: 'The payment method to use. Must be wallet.'
+      },
+      pickupTime: {
+        type: 'STRING',
+        description: 'The pickup time requested by the user.'
+      }
+    },
+    required: ['paymentMethod']
+  }
+};
+
 // @desc    AI Assistant chat chat endpoint
 // @route   POST /api/ai/chat
 // @access  Private
@@ -295,21 +326,32 @@ export const chatWithAssistant = async (req, res, next) => {
       parts: [{ text: message }]
     });
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
 
     const systemInstruction = {
       parts: [
         {
-          text: `You are a helpful, friendly, and efficient AI Ordering Assistant for the Smart Canteen. 
-You assist students with ordering food, searching the canteen menu, checking item availability/price, managing their cart, and querying their past orders.
+          text: `You are a helpful, concise, and friendly AI Ordering Assistant for the Smart Canteen.
+IMPORTANT PERSONA RULES:
+- Be short, friendly, and conversational (not robotic). For greetings or small talk ("hi", "thanks"), reply warmly and briefly, then offer help (e.g. suggest checking the menu).
+- You ONLY answer questions about the canteen menu, cart, and past orders. Refuse to answer unrelated questions politely.
+- Always prefer calling a function over guessing when food data, prices, or orders are involved.
+- If anything is unclear or unsupported, ask a short clarifying question instead of failing or showing technical output.
 
-Guidelines:
-1. When a user asks to search for food (e.g. by category, name, or price), always use the "searchFoods" tool. Do not try to answer from memory.
-2. When a user wants to add an item to their cart, you MUST first call "searchFoods" to verify the food item exists, get its correct "productId", and check its price and stock. Do NOT guess or make up a productId.
-3. Once you have the valid "productId", call the "addToCart" tool with the productId, quantity, and any chosen extras.
-4. When a user asks about their past orders, order status, or order history, use the "getPastOrders" tool.
-5. Keep your tone polite, concise, and helpful. Always confirm actions to the user (e.g., when an item is added to the cart).
-6. State prices in Rupees (Rs.).`
+SITUATION HANDLING:
+- Food Questions ("what is this", "what category is X"): Answer using that item's name, category, and description from the foods collection.
+- Stock Questions ("how many are left"): Read the item's current "stock" field and answer in plain language (e.g. "12 left", or "that one's sold out right now").
+- Budget Questions ("under 150rs"): Filter foods by max price and list matching items. Treat follow-up phrases (like "under 100rs") as filters on the previous conversation history.
+- Successful Search (0 matches): If a search returns no items, DO NOT give a generic error. Give a friendly, specific message naming what they searched for.
+- Adding to Cart & Ordering:
+  1. MUST call "searchFoods" first to get correct "productId", price, and stock. Do NOT guess the productId.
+  2. Call "addToCart" once you have it.
+  3. After adding, ask ONE short follow-up about pickup timing (e.g. "When would you like to pick this up?").
+  4. Once pickup time is provided, confirm they want to pay via Wallet (cash/counter is not currently an option).
+  5. Once they confirm, automatically call the "placeOrder" tool (with paymentMethod: "wallet" and their pickup timing) instead of telling them to do it.
+- Out-of-Stock Items: If an item is requested but stock is 0 (or status unavailable), say so explicitly and suggest a similar available item.
+- Past Orders: Use "getPastOrders" to check history/status.
+- Prices are in Rupees (Rs.).`
         }
       ]
     };
@@ -319,7 +361,8 @@ Guidelines:
         function_declarations: [
           searchFoodsTool,
           addToCartTool,
-          getPastOrdersTool
+          getPastOrdersTool,
+          placeOrderTool
         ]
       }
     ];
@@ -343,18 +386,20 @@ Guidelines:
       const responseData = await response.json();
 
       if (!response.ok) {
+        console.error('Gemini API Error:', responseData?.error || responseData);
         return res.status(500).json({
           success: false,
-          message: responseData?.error?.message || 'Gemini API execution failed'
+          message: 'The assistant is temporarily unavailable, please try again in a moment.'
         });
       }
 
       const candidate = responseData?.candidates?.[0];
       const modelContent = candidate?.content;
       if (!modelContent) {
+        console.error('Empty response from Gemini model:', responseData);
         return res.status(500).json({
           success: false,
-          message: 'Empty response from Gemini model.'
+          message: 'The assistant is temporarily unavailable, please try again in a moment.'
         });
       }
 
@@ -372,6 +417,8 @@ Guidelines:
             functionResult = await handleAddToCart(args, req);
           } else if (name === 'getPastOrders') {
             functionResult = await handleGetPastOrders(args, req);
+          } else if (name === 'placeOrder') {
+            functionResult = await handlePlaceOrder(args, req);
           } else {
             functionResult = { success: false, message: `Function ${name} is not supported.` };
           }
@@ -404,6 +451,10 @@ Guidelines:
       history: currentContents
     });
   } catch (error) {
-    next(error);
+    console.error('AI Chat Execution Error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'The assistant is temporarily unavailable, please try again in a moment.'
+    });
   }
 };
