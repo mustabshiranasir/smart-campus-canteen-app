@@ -16,6 +16,7 @@ import cartRoutes from './routes/cartRoutes.js';
 import walletRoutes from './routes/walletRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
 import locationRoutes from './routes/locationRoutes.js';
+import aiRoutes from './routes/aiRoutes.js';
 
 // Load env vars
 dotenv.config();
@@ -51,6 +52,7 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/wallet', walletRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/location', locationRoutes);
+app.use('/api/ai', aiRoutes);
 
 // Basic health check route
 app.get('/health', (req, res) => {
